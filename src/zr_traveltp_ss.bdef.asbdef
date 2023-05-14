@@ -1,0 +1,100 @@
+managed;
+strict ( 2 );
+with draft;
+
+define behavior for ZR_travelTP_SS alias travel
+implementation in class ZBP_R_travelTP_SS unique
+persistent table ZSSDEMOTRAVEL
+draft table ZTRAVEL00D_SS
+etag master LocalLastChangedAt
+lock master total etag LastChangedAt
+authorization master( global )
+
+{
+  field ( readonly )
+   TravelID,
+   LocalCreatedBy,
+   LocalCreatedAt,
+   LocalLastChangedAt,
+   LastChangedAt;
+
+  field ( numbering : managed )
+   TravelUUID;
+
+
+  create;
+  update;
+  delete;
+
+  draft action Edit;
+  draft action Activate;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare;
+
+  mapping for ZSSDEMOTRAVEL
+  {
+    TravelUUID = TRAVEL_UUID;
+    TravelID = TRAVEL_ID;
+    AgencyID = AGENCY_ID;
+    CustomerID = CUSTOMER_ID;
+    BeginDate = BEGIN_DATE;
+    EndDate = END_DATE;
+    BookingFee = BOOKING_FEE;
+    TotalPrice = TOTAL_PRICE;
+    CurrencyCode = CURRENCY_CODE;
+    Description = DESCRIPTION;
+    OverallStatus = OVERALL_STATUS;
+    LocalCreatedBy = LOCAL_CREATED_BY;
+    LocalCreatedAt = LOCAL_CREATED_AT;
+    LocalLastChangedBy = LOCAL_LAST_CHANGED_BY;
+    LocalLastChangedAt = LOCAL_LAST_CHANGED_AT;
+    LastChangedAt = LAST_CHANGED_AT;
+  }
+
+  association _booking { create; with draft; }
+
+  determination CalculateTravelID on save { create; }
+}
+
+define behavior for ZR_bookingTP_SS alias booking
+implementation in class ZBP_R_bookingTP_SS unique
+persistent table ZSSDEMOBOOKING
+draft table ZBOOKING00D_SS
+etag master LocalLastChangedAt
+lock dependent by _travel
+authorization dependent by _travel
+
+{
+  field ( readonly )
+   ParentUUID,
+   BookingID,
+   LocalLastChangedAt;
+
+  field ( numbering : managed )
+   BookingUUID;
+
+
+  update;
+  delete;
+
+  mapping for ZSSDEMOBOOKING
+  {
+    BookingUUID = BOOKING_UUID;
+    ParentUUID = PARENT_UUID;
+    BookingID = BOOKING_ID;
+    BookingDate = BOOKING_DATE;
+    CustomerID = CUSTOMER_ID;
+    CarrierID = CARRIER_ID;
+    ConnectionID = CONNECTION_ID;
+    FlightDate = FLIGHT_DATE;
+    FlightPrice = FLIGHT_PRICE;
+    CurrencyCode = CURRENCY_CODE;
+    BookingStatus = BOOKING_STATUS;
+    LocalLastChangedAt = LOCAL_LAST_CHANGED_AT;
+  }
+
+  association _travel { with draft; }
+
+  determination CalculateBookingID on save { create; }
+}

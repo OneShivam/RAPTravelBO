@@ -1,0 +1,5 @@
+define service ZUI_travel_SS {
+  expose ZC_TRAVELTP_SS as travel;
+  expose ZC_BOOKINGTP_SS as booking;
+  expose I_CURRENCY as Currency;
+}
